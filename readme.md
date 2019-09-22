@@ -70,7 +70,7 @@
 </project>
 ```
 + eueka server `application.yml` 配置中心
- ```$xslt
+ ```yaml
 server:
   port: 8761
 eureka:
@@ -137,7 +137,7 @@ public class EurekaServerApplication {
 ```
 + 配置 `application.yml` 
  
- ```xml
+ ```yaml
 server:
   port: 8010
 spring:
