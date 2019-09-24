@@ -12,6 +12,11 @@
         <module>EurekaClient</module>
         <module>restTemplate</module>
         <module>restTemplateTest</module>
+        <module>consumer</module>
+        <module>zuul</module>
+        <module>Ribbon</module>
+        <module>fegin</module>
+        <module>hystrix</module>
     </modules>
 
     <!-- 表示此项目集成与 spring-boot-starter-parent 的一些特征-->

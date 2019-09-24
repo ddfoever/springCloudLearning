@@ -3,6 +3,7 @@ package com.ddfoever.controller;
 import com.ddfoever.User;
 import com.ddfoever.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -10,6 +11,9 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+    @Value("${server.port}")
+    private String port;
 
     @Autowired
     private UserService userService;
@@ -35,6 +39,11 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") int id){
         userService.deleteById(id);
+    }
+
+    @GetMapping("/index")
+    public String index(){
+        return "当前端口 ："+this.port;
     }
 
 }

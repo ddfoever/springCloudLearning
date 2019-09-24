@@ -1,0 +1,19 @@
+server:
+  port: 8060
+spring:
+  application:
+    name: hystrix
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true #将ip注入注册中心
+feign:
+  hystrix:
+    enabled: true #开启熔断机制
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'hystrix.stream' #监控数据
