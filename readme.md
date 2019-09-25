@@ -687,11 +687,176 @@ public class FeignInterfaceImpl implements FeignInterface {
 `http://localhost:8060/actuator/hystrix.stream` 实时数据监控 通过`hystrix.stream`
 `http://localhost:8060/hystrix` 获取可视化界面 通过输入`http://localhost:8060/actuator/hystrix.stream`
 
+### spring cloud config 微服务配置中心
+
+配置中心的作用就是为各个微服提供统一管理的功能，防止一个微服务的更改引起其他微服务一起更改，提供高度集中化的功能
+有两种方式
+ + 本地配置  会将此配置存放在本地文件中
+ + git仓库  也可以存放在git远程仓库中
+ 
+ 
+ 需要创建一个config server 通过他来管理所有配置
+
+`pom.xml`
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springCloudLearning</artifactId>
+        <groupId>com.ddfoever</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>config-server-native</artifactId>
 
 
-  
-  
-    
-    
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+            <version>2.0.2.RELEASE</version>
+        </dependency>
+    </dependencies>
+</project>
+```
+config server 启动类
+
+```java
+package com.ddfoever;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.config.server.EnableConfigServer;
+
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigServerNativeApp {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServerNativeApp.class,args);
+    }
+}
+
+```
+`application.yml`
+
+```yaml
+server:
+  port: 8070
+spring:
+  application:
+    name: configServerNative
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/shared
+
+``` 
+> 属性说明
+`spring.profiles.active` 表示用那种方式来获取配置信息，有两种 一种是git 一种是native
+`spring.cloud.config.server.native.search-locations` 配置文件的位置
+ 
+ ### config client 的创建
+ 
+ `bootstrap.yml` 必须这样叫
+ ```yaml
+spring:
+  application:
+    name: config
+  profiles:
+    active: dev
+  cloud:
+    config:
+      uri: http://localhost:8762
+      fail-fast: true
+
+```
+> 属性说明
+`spring.cloud.config.uri` 配置config server的地址
+`spring.cloud.config.fail-fast`  优先判断config server 是否正常
+通过`spring.application.name`和`spring.profiles.active` 来拼接目标文件名  
+
+### 基于git远程配置中心
+
+server 端
+```yaml
+server:
+  port: 8763
+spring:
+  application:
+    name: configServer
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/ddfoever/springCloudLearning.git
+          search-paths: config
+          username: ddfoever
+          password: an_2601790
+          default-label: master
+          #默认使用哪个分支
+       #label: master 配置分支
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+```
+
+client duan
+```yaml
+server:
+  port: 8090
+spring:
+  cloud:
+    config:
+      label: master
+      name: confgiclient
+      discovery:
+        enabled: true
+        service-id: configServer
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+```
+> 属性说明
+`spring.cloud.config.name` 代表的是远程仓库配置文件的名称
+`spring.cloud.config.discovery.enabled` 是否开启远程发现服务
+`spring.cloud.config.discovery.service-id` 表示在注册中心的名称
+
+
+
+### 配置动态路由(并且不用stop服务)
+1. 添加依赖pom.xml
+ ```xml
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+```
+2. 给config client 端配置开启刷新 应该叫监控刷新请求
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'refresh' #配置指定刷新范围，并开启/actuator/refresh
+```
+3. 添加`@RefreshScope` 注解功能 当调用/actuator/refresh时 会刷新@RefreshScope的bean
+
+ 最后通过`post` 请求 调用`http://localhost:port/actuator/refresh` 就会自动刷新
+
+
+
+
 
 

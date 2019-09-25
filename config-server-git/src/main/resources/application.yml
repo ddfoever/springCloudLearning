@@ -1,0 +1,22 @@
+server:
+  port: 8763
+spring:
+  application:
+    name: configServer
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/ddfoever/springCloudLearning.git
+          search-paths: config
+          username: ddfoever
+          password: an_2601790
+          default-label: master
+          #默认使用哪个分支
+       #label: master 配置分支
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true

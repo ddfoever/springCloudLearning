@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    config:
+      label: master
+      name: configclient
+      discovery:
+        enabled: true
+        service-id: configServer #代表配置中心server
+      fail-fast: true
