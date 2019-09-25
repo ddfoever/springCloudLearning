@@ -9,8 +9,8 @@ spring:
         git:
           uri: https://github.com/ddfoever/springCloudLearning.git
           search-paths: config
-          username: ddfoever
-          password: an_2601790
+          username: ***
+          password: ****
           default-label: master
           #默认使用哪个分支
        #label: master 配置分支
